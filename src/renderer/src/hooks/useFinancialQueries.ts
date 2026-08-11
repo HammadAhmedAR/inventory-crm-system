@@ -9,10 +9,11 @@ export function useTodayFinancialSummary() {
     },
   });
 }
+export function useDailyExpenses() { return useQuery({ queryKey: ["dailyExpenses"], queryFn: window.api.financials.getDailyExpenses }); }
 
 export function useLogExpense() {
   const client = useQueryClient();
-  return useMutation({ mutationFn: window.api.financials.logExpense, onSuccess: () => client.invalidateQueries({ queryKey: ["financialSummary"] }) });
+  return useMutation({ mutationFn: window.api.financials.logExpense, onSuccess: () => Promise.all([client.invalidateQueries({ queryKey: ["financialSummary"] }), client.invalidateQueries({ queryKey: ["dailyExpenses"] })]) });
 }
 
 export function useRecordSale() {

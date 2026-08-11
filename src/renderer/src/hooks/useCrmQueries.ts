@@ -51,6 +51,7 @@ export function useQuickLogLead() {
     onSuccess: (result) => {
       // Invalidate queries to refresh list data
       queryClient.invalidateQueries({ queryKey: ["dailyTasks"] });
+      queryClient.invalidateQueries({ queryKey: ["tasks"] });
       queryClient.invalidateQueries({ queryKey: ["availableVehicles"] });
       queryClient.invalidateQueries({ queryKey: ["financialSummary"] });
       if (result?.customerId) {

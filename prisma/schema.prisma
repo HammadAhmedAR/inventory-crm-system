@@ -11,11 +11,25 @@ model UserAccount {
   id           String   @id @default(uuid())
   username     String   @unique
   fullName     String
-  pinHash      String   
+  passwordHash String
   role         String   @default("OWNER")
   isActive     Boolean  @default(true)
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
+}
+
+model DealershipProfile {
+  id            String @id @default(uuid())
+  companyName   String
+  regNumber     String
+  address       String
+  phone         String
+  email         String
+  website       String
+  bankName      String
+  bankBranch    String
+  accountName   String
+  accountNumber String
 }
 
 model VehicleModel {
@@ -46,9 +60,11 @@ model VehicleChassis {
   
   repairs          VehicleRepairLog[]
   quotes           ProspectQuote[]
+  tasks            FollowUpTask[]
   salesRecord      VehicleSale?
   createdAt        DateTime             @default(now())
   updatedAt        DateTime             @updatedAt
+  deletedAt        DateTime?
 }
 
 model VehicleRepairLog {
@@ -79,6 +95,7 @@ model Customer {
   tasks        FollowUpTask[]
   sales        VehicleSale[]
   createdAt    DateTime              @default(now())
+  deletedAt    DateTime?
 }
 
 model CustomerInteraction {
@@ -98,21 +115,27 @@ model ProspectQuote {
   chassisNumber String
   chassis       VehicleChassis @relation(fields: [chassisNumber], references: [chassisNumber])
   quotedPrice   Float          
+  isPrimary     Boolean        @default(true)
   status        String         @default("ACTIVE") 
   createdAt     DateTime       @default(now())
 }
 
 model FollowUpTask {
   id         String   @id @default(uuid())
-  customerId String
-  customer   Customer @relation(fields: [customerId], references: [id])
+  customerId String?
+  customer   Customer? @relation(fields: [customerId], references: [id])
+  chassisNumber String?
+  chassis    VehicleChassis? @relation(fields: [chassisNumber], references: [chassisNumber])
   title      String   
   actionType String   
+  taskType   String   @default("SALES")
+  priority   String   @default("MEDIUM")
   dueDate    DateTime 
   dueTime    String?  
   status     String   @default("PENDING") 
   notes      String?
   createdAt  DateTime @default(now())
+  deletedAt  DateTime?
 }
 
 model DailyExpense {
@@ -123,6 +146,7 @@ model DailyExpense {
   expenseDate DateTime @default(now())
   loggedBy    String   
   createdAt   DateTime @default(now())
+  deletedAt   DateTime?
 }
 
 model VehicleSale {

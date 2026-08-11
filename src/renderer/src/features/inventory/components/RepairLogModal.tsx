@@ -19,6 +19,7 @@ interface RepairLogModalProps {
     costIncurred: number;
   }) => Promise<void> | void;
   onResolveAll: (chassisNumber: string) => Promise<void> | void;
+  onDelete: (chassisNumber: string) => void;
 }
 
 function formatLkr(value: number) {
@@ -35,6 +36,7 @@ const RepairLogModal: React.FC<RepairLogModalProps> = ({
   onClose,
   onSave,
   onResolveAll,
+  onDelete,
 }) => {
   const [category, setCategory] = useState<(typeof ISSUE_OPTIONS)[number]>("MECHANICAL");
   const [description, setDescription] = useState("");
@@ -55,13 +57,15 @@ const RepairLogModal: React.FC<RepairLogModalProps> = ({
             <p className="text-[11px] uppercase tracking-[0.2em] text-subtle">Repair Ledger</p>
             <h3 className="text-lg font-semibold text-white">{selectedUnit.model.make} {selectedUnit.model.modelName}</h3>
           </div>
+          <div className="flex items-center gap-2">
+          <button type="button" onClick={() => onDelete(selectedUnit.chassisNumber)} className="rounded-lg border border-red-500/30 px-3 py-1.5 text-xs text-red-300 hover:bg-red-500/10">🗑️ Delete Unit</button>
           <button
             type="button"
             className="h-8 w-8 rounded-lg border border-border bg-surface-elevated text-muted hover:text-white"
             onClick={onClose}
           >
             ×
-          </button>
+          </button></div>
         </div>
 
         <div className="grid gap-5 p-6 md:grid-cols-[1.2fr_0.8fr]">

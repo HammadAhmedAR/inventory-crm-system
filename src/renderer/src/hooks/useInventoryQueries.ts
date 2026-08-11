@@ -86,6 +86,7 @@ export function useUpdateChassisStatus() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["inventoryList"] });
+      queryClient.invalidateQueries({ queryKey: ["tasks"] });
     },
   });
 }

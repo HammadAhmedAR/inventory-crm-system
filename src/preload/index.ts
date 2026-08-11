@@ -1,5 +1,6 @@
 import { contextBridge, ipcRenderer } from "electron";
 import { electronAPI } from "@electron-toolkit/preload";
+import type { CreateTaskPayload, DealershipProfileInput, RecycleEntityType, ReportFilterPayload, TaskFilters } from "../shared/ipc";
 
 export type Task = {
   id: string;
@@ -174,14 +175,41 @@ const api = {
   },
   financials: {
     getTodaySummary: () => ipcRenderer.invoke("financials:getTodaySummary"),
+    getDailyExpenses: () => ipcRenderer.invoke("financials:get-daily-expenses"),
     logExpense: (data: { category: string; description: string; amount: number; loggedBy?: string }) => ipcRenderer.invoke("financials:log-expense", data),
     recordSale: (data: { customerId: string; chassisNumber: string; finalSalePrice: number; paymentMethod: string; notes?: string }) => ipcRenderer.invoke("financials:record-sale", data),
   },
-  auth: { verifyPin: (pin: string) => ipcRenderer.invoke("auth:verify-pin", pin) },
+  auth: {
+    login: (data: { username: string; password: string }) => ipcRenderer.invoke("auth:login", data),
+    changePassword: (data: { userId: string; currentPassword: string; newPassword: string }) => ipcRenderer.invoke("auth:change-password", data),
+  },
+  profile: {
+    get: () => ipcRenderer.invoke("profile:get"),
+    update: (data: DealershipProfileInput) => ipcRenderer.invoke("profile:update", data),
+  },
+  reports: {
+    preview: (filters: ReportFilterPayload) => ipcRenderer.invoke("reports:preview", filters),
+    exportFile: (filters: ReportFilterPayload) => ipcRenderer.invoke("reports:export-file", filters),
+  },
+  tasks: {
+    getAll: (filters?: TaskFilters) => ipcRenderer.invoke("tasks:get-all", filters ?? {}),
+    create: (data: CreateTaskPayload) => ipcRenderer.invoke("tasks:create", data),
+    updateStatus: (data: { taskId: string; status: "PENDING" | "IN_PROGRESS" | "COMPLETED" }) => ipcRenderer.invoke("tasks:update-status", data),
+  },
+  recyclebin: {
+    getDeleted: (entityType?: RecycleEntityType) => ipcRenderer.invoke("recyclebin:get-deleted", entityType),
+    softDelete: (data: { entityType: RecycleEntityType; id: string }) => ipcRenderer.invoke("recyclebin:soft-delete", data),
+    restore: (data: { entityType: RecycleEntityType; id: string }) => ipcRenderer.invoke("recyclebin:restore", data),
+    permanentDelete: (data: { entityType: RecycleEntityType; id: string }) => ipcRenderer.invoke("recyclebin:permanent-delete", data),
+    emptyBin: () => ipcRenderer.invoke("recyclebin:empty-bin"),
+  },
   agreements: {
     getOptions: () => ipcRenderer.invoke("agreements:get-options"),
     generatePdf: (data: { agreementId: string; chassisNumber: string; customerId: string; salePrice: number; paymentMethod: string; notes?: string }) => ipcRenderer.invoke("agreements:generate-pdf", data),
     openPdf: (filePath: string) => ipcRenderer.invoke("agreements:open-pdf", filePath),
+  },
+  quotes: {
+    generatePdf: (quoteId: string) => ipcRenderer.invoke("quotes:generate-pdf", quoteId),
   },
 };
 

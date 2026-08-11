@@ -1,6 +1,7 @@
 import React from "react";
+import { useRecycleBin } from "../hooks/useRecycleBin";
 
-export type Route = "/workbench" | "/inventory" | "/prospects" | "/agreements";
+export type Route = "/workbench" | "/inventory" | "/prospects" | "/agreements" | "/reports" | "/settings" | "/todos" | "/recycle-bin";
 
 interface NavItem {
   route: Route;
@@ -34,6 +35,30 @@ const NAV_ITEMS: NavItem[] = [
     label: "Handover Agreement",
     sublabel: "Docs & Contracts",
   },
+  {
+    route: "/reports",
+    icon: "📈",
+    label: "Reports & Analytics",
+    sublabel: "Filtered exports",
+  },
+  {
+    route: "/todos",
+    icon: "✅",
+    label: "Tasks & Reminders",
+    sublabel: "Follow-ups & repairs",
+  },
+  {
+    route: "/settings",
+    icon: "⚙️",
+    label: "Dealership Settings",
+    sublabel: "Company & security",
+  },
+  {
+    route: "/recycle-bin",
+    icon: "🗑️",
+    label: "Recycle Bin",
+    sublabel: "Restore deleted items",
+  },
 ];
 
 interface SidebarProps {
@@ -49,6 +74,7 @@ const Sidebar: React.FC<SidebarProps> = ({
   collapsed,
   onToggleCollapse,
 }) => {
+  const { data: deletedItems = [] } = useRecycleBin();
   return (
     <aside
       className={`
@@ -115,6 +141,7 @@ const Sidebar: React.FC<SidebarProps> = ({
               {!collapsed && (
                 <div className="animate-fade-in overflow-hidden">
                   <p className="leading-tight">{item.label}</p>
+                  {item.route === "/recycle-bin" && deletedItems.length > 0 && <span className="ml-2 rounded-full bg-red-500 px-1.5 py-0.5 text-[9px] font-bold text-white">{deletedItems.length}</span>}
                   <p className="text-[10px] text-subtle leading-tight">
                     {item.sublabel}
                   </p>

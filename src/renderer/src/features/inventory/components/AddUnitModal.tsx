@@ -3,8 +3,7 @@ import { useCreateInventoryUnit } from "../../../hooks/useInventoryQueries";
 
 interface Props { open: boolean; onClose: () => void }
 const BODY_TYPES = ["SUV", "SUBCOMPACT_SUV", "BIKE", "SCOOTER", "SEDAN", "HATCHBACK"];
-const MAKES = ["Honda", "TVS", "Kia", "Suzuki", "Toyota", "Mazda", "Ford"];
-const emptyForm = () => ({ chassisNumber: "", engineNumber: "", make: "Honda", modelName: "", bodyType: "BIKE", year: String(new Date().getFullYear()), color: "", baseQuotingPrice: "", minSellingPrice: "", costPrice: "", keysCount: "2", documentsPresent: false });
+const emptyForm = () => ({ chassisNumber: "", engineNumber: "", make: "", modelName: "", bodyType: "BIKE", year: String(new Date().getFullYear()), color: "", baseQuotingPrice: "", minSellingPrice: "", costPrice: "", keysCount: "2", documentsPresent: false });
 
 const AddUnitModal: React.FC<Props> = ({ open, onClose }) => {
   const [form, setForm] = useState(emptyForm); const createUnit = useCreateInventoryUnit();
@@ -13,7 +12,7 @@ const AddUnitModal: React.FC<Props> = ({ open, onClose }) => {
   return <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/75 p-4" role="dialog" aria-modal="true"><div className="max-h-[94vh] w-full max-w-3xl overflow-y-auto rounded-2xl border border-border bg-surface shadow-card">
     <div className="sticky top-0 z-10 flex items-center justify-between border-b border-border bg-surface px-6 py-4"><div><p className="text-[10px] uppercase tracking-[.2em] text-subtle">Inventory Intake</p><h2 className="text-lg font-bold text-white">Add New Unit</h2></div><button className="btn-ghost" onClick={onClose} aria-label="Close">×</button></div>
     <form className="p-6" onSubmit={async (e) => { e.preventDefault(); await createUnit.mutateAsync({ chassisNumber: form.chassisNumber, engineNumber: form.engineNumber || undefined, make: form.make, modelName: form.modelName, bodyType: form.bodyType, year: Number(form.year), color: form.color, baseQuotingPrice: Number(form.baseQuotingPrice), minSellingPrice: form.minSellingPrice ? Number(form.minSellingPrice) : undefined, costPrice: form.costPrice ? Number(form.costPrice) : undefined, keysCount: Number(form.keysCount), documentsPresent: form.documentsPresent }); setForm(emptyForm()); onClose(); }}>
-      <div className="grid gap-4 md:grid-cols-2"><label className="block text-xs text-muted">Make *<input required list="vehicle-makes" value={form.make} onChange={(e) => setForm((old) => ({ ...old, make: e.target.value }))} className="input-dark mt-1 w-full" /><datalist id="vehicle-makes">{MAKES.map((make) => <option key={make} value={make} />)}</datalist></label>{input("modelName", "Model name", "text", true)}
+      <div className="grid gap-4 md:grid-cols-2">{input("make", "Make", "text", true)}{input("modelName", "Model name", "text", true)}
         <label className="block text-xs text-muted">Body type *<select className="input-dark mt-1 w-full" value={form.bodyType} onChange={(e) => setForm((old) => ({ ...old, bodyType: e.target.value }))}>{BODY_TYPES.map((type) => <option key={type} value={type}>{type.replace(/_/g, " ")}</option>)}</select></label>{input("year", "Year of manufacture", "number", true)}
         <div className="md:col-span-2">{input("chassisNumber", "Chassis number / VIN", "text", true)}</div>{input("engineNumber", "Engine number")}{input("color", "Color", "text", true)}
         {input("baseQuotingPrice", "Base quoting price (LKR)", "number", true)}{input("minSellingPrice", "Minimum selling floor price (LKR)", "number")}{input("costPrice", "Acquisition cost price (LKR)", "number")}

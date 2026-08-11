@@ -23,7 +23,7 @@ function toNumber(value: number | string | undefined | null) {
 }
 
 function buildInventoryWhere(filters: InventoryFilters = {}) {
-  const where: Prisma.VehicleChassisWhereInput = {};
+  const where: Prisma.VehicleChassisWhereInput = { deletedAt: null };
 
   if (filters.status) {
     const normalized = filters.status.toUpperCase();

@@ -41,6 +41,7 @@ interface ChassisDataTableProps {
   onRepair: (unit: InventoryUnit) => void;
   onCustody: (unit: InventoryUnit) => void;
   onChangeSaleStatus: (unit: InventoryUnit) => void;
+  onDelete: (unit: InventoryUnit) => void;
 }
 
 const ChassisDataTable: React.FC<ChassisDataTableProps> = ({
@@ -61,6 +62,7 @@ const ChassisDataTable: React.FC<ChassisDataTableProps> = ({
   onRepair,
   onCustody,
   onChangeSaleStatus,
+  onDelete,
 }) => {
   const makes = Array.from(new Set(allUnits.map((unit) => unit.model.make))).sort();
   const models = Array.from(new Map(allUnits.filter((unit) => !makeFilter || unit.model.make === makeFilter).map((unit) => [unit.model.id, unit.model])).values());
@@ -195,6 +197,7 @@ const ChassisDataTable: React.FC<ChassisDataTableProps> = ({
                     >
                       Change Sale Status
                     </button>
+                    <button type="button" onClick={() => onDelete(unit)} className="rounded-md border border-red-500/30 px-2 py-1 text-[10px] font-medium text-red-300 hover:bg-red-500/10">🗑️ Delete</button>
                   </div>
                 </td>
               </tr>

@@ -8,6 +8,8 @@ interface AppState {
 
   selectedCustomerId: string | null;
   setSelectedCustomerId: (id: string | null) => void;
+  selectedChassisNumber: string | null;
+  setSelectedChassisNumber: (id: string | null) => void;
 }
 
 export const useAppStore = create<AppState>((set) => ({
@@ -18,4 +20,6 @@ export const useAppStore = create<AppState>((set) => ({
 
   selectedCustomerId: null,
   setSelectedCustomerId: (id) => set({ selectedCustomerId: id }),
+  selectedChassisNumber: null,
+  setSelectedChassisNumber: (id) => set({ selectedChassisNumber: id }),
 }));

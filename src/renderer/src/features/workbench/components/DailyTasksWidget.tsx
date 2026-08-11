@@ -2,6 +2,7 @@ import React, { useMemo } from "react";
 import { useDailyTasks, useCompleteTask } from "../../../hooks/useCrmQueries";
 import { useAppStore } from "../../../store/useAppStore";
 import { formatWhatsAppUrl } from "../../../lib/whatsapp";
+import { useSoftDelete } from "../../../hooks/useRecycleBin";
 
 type Task = Awaited<ReturnType<Window["api"]["crm"]["getTasks"]>>[number];
 
@@ -10,6 +11,7 @@ interface TaskCardProps {
   onComplete: (id: string) => void;
   onSelectCustomer: (id: string) => void;
   selectedId: string | null;
+  onDelete: (id: string) => void;
 }
 
 const TaskCard: React.FC<TaskCardProps> = ({
@@ -17,6 +19,7 @@ const TaskCard: React.FC<TaskCardProps> = ({
   onComplete,
   onSelectCustomer,
   selectedId,
+  onDelete,
 }) => {
   const isSelected = selectedId === task.customerId;
 
@@ -94,6 +97,7 @@ const TaskCard: React.FC<TaskCardProps> = ({
         >
           View ➔
         </button>
+        <button onClick={() => onDelete(task.id)} className="btn-ghost px-2 py-1 text-xs text-red-300" aria-label="Move task to Recycle Bin">🗑️</button>
       </div>
     </div>
   );
@@ -102,6 +106,7 @@ const TaskCard: React.FC<TaskCardProps> = ({
 const DailyTasksWidget: React.FC = () => {
   const { data: tasks = [], isLoading } = useDailyTasks();
   const completeMutation = useCompleteTask();
+  const softDelete = useSoftDelete();
   const { selectedCustomerId, setSelectedCustomerId } = useAppStore();
 
   const handleComplete = (taskId: string) => {
@@ -185,6 +190,7 @@ const DailyTasksWidget: React.FC = () => {
                   onComplete={handleComplete}
                   onSelectCustomer={setSelectedCustomerId}
                   selectedId={selectedCustomerId}
+                  onDelete={(id) => softDelete.mutate({ entityType: "TASK", id })}
                 />
               ))}
             </div>
@@ -206,6 +212,7 @@ const DailyTasksWidget: React.FC = () => {
                   onComplete={handleComplete}
                   onSelectCustomer={setSelectedCustomerId}
                   selectedId={selectedCustomerId}
+                  onDelete={(id) => softDelete.mutate({ entityType: "TASK", id })}
                 />
               ))}
             </div>
@@ -227,6 +234,7 @@ const DailyTasksWidget: React.FC = () => {
                   onComplete={handleComplete}
                   onSelectCustomer={setSelectedCustomerId}
                   selectedId={selectedCustomerId}
+                  onDelete={(id) => softDelete.mutate({ entityType: "TASK", id })}
                 />
               ))}
             </div>

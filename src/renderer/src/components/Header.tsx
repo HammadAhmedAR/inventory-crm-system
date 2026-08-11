@@ -6,16 +6,21 @@ const ROUTE_LABELS: Record<Route, string> = {
   "/inventory": "Inventory & Repairs",
   "/prospects": "Prospects & Quotes",
   "/agreements": "Handover Agreement",
+  "/reports": "Reports & Analytics",
+  "/settings": "Dealership Settings",
+  "/todos": "Tasks & Reminders",
+  "/recycle-bin": "Recycle Bin",
 };
 
 interface HeaderProps {
   activeRoute: Route;
   onWalkInLogger: () => void;
   onFinancials: () => void;
-  onLock: () => void;
+  userName: string;
+  onLogout: () => void;
 }
 
-const Header: React.FC<HeaderProps> = ({ activeRoute, onWalkInLogger, onFinancials, onLock }) => {
+const Header: React.FC<HeaderProps> = ({ activeRoute, onWalkInLogger, onFinancials, userName, onLogout }) => {
   const searchRef = useRef<HTMLInputElement>(null);
 
   // Focus search on Ctrl+K / Cmd+K
@@ -89,7 +94,8 @@ const Header: React.FC<HeaderProps> = ({ activeRoute, onWalkInLogger, onFinancia
       {/* Right: Actions */}
       <div className="flex items-center gap-2 flex-shrink-0 [-webkit-app-region:no-drag]">
         <button onClick={onFinancials} className="btn-ghost px-3 py-1.5 text-xs" aria-label="Open expense and sale recorder">Financials</button>
-        <button onClick={onLock} className="btn-ghost h-8 w-8 p-0" aria-label="Lock OmniDrive">🔒</button>
+        <span className="hidden max-w-32 truncate text-xs font-medium text-slate-300 xl:block" title={userName}>👤 {userName}</span>
+        <button onClick={onLogout} className="btn-ghost px-3 py-1.5 text-xs" aria-label="Log out of OmniDrive">🚪 Log Out</button>
         {/* Notification dot */}
         <button
           id="header-notifications-btn"

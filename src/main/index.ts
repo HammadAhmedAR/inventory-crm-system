@@ -8,6 +8,11 @@ import { registerFinancialsIpcHandlers } from "./modules/financials/financials.i
 import { registerAuthIpcHandlers } from "./modules/auth/auth.ipc";
 import { registerPdfIpcHandlers } from "./modules/pdf/pdf.ipc";
 import { registerCrmPipelineIpcHandlers } from "./modules/crm/crm.ipc";
+import { registerReportsIpcHandlers } from "./modules/reports/reports.ipc";
+import { registerProfileIpcHandlers } from "./modules/profile/profile.ipc";
+import { seedApplicationSettings } from "./db/seed";
+import { registerTaskIpcHandlers } from "./modules/crm/task.ipc";
+import { registerRecycleBinIpcHandlers } from "./modules/recyclebin/recyclebin.ipc";
 
 // Set database URL dynamically based on environment
 const dbPath = is.dev
@@ -178,6 +183,7 @@ function registerIpcHandlers() {
   // CRM IPC Handlers
   ipcMain.handle("crm:getTasks", async () => {
     return prisma.followUpTask.findMany({
+      where: { customerId: { not: null }, taskType: "SALES", deletedAt: null },
       include: {
         customer: true
       },
@@ -221,17 +227,22 @@ function registerIpcHandlers() {
       // Optionally update vehicle saleStatus to RESERVED / IN_NEGOTIATION
     }
 
-    // 4. Create FollowUpTask
-    if (data.dueDate) {
-      const parts = data.dueDate.split("T");
+    // 4. Every walk-in queues a sales follow-up task.
+    {
+      const fallback = new Date(); fallback.setDate(fallback.getDate() + 1);
+      const dueValue = data.dueDate || fallback.toISOString();
+      const parts = dueValue.split("T");
       const datePart = parts[0];
       const timePart = parts[1] ? parts[1].substring(0, 5) : null;
 
-      await prisma.followUpTask.create({
+      await (prisma.followUpTask as any).create({
         data: {
           customerId: customer.id,
+          chassisNumber: data.chassisNumber || null,
           title: `Follow up with ${data.fullName} on interest`,
           actionType: data.actionTag === "SEND_WHATSAPP_DETAILS" || data.actionTag === "SEND_PRICE" ? "WHATSAPP" : "CALL",
+          taskType: "SALES",
+          priority: "MEDIUM",
           dueDate: new Date(datePart),
           dueTime: timePart,
           status: "PENDING"
@@ -276,7 +287,7 @@ function registerIpcHandlers() {
   ipcMain.handle("crm:getCustomers", async (_, search = "") => {
     const query = String(search).trim();
     return prisma.customer.findMany({
-      where: query ? { OR: [{ fullName: { contains: query } }, { phone: { contains: query } }, { email: { contains: query } }] } : undefined,
+      where: { deletedAt: null, ...(query ? { OR: [{ fullName: { contains: query } }, { phone: { contains: query } }, { email: { contains: query } }] } : {}) },
       include: {
         _count: { select: { interactions: true, quotes: true } },
         quotes: { take: 1, orderBy: { createdAt: "desc" }, include: { chassis: { include: { model: true } } } },
@@ -287,7 +298,7 @@ function registerIpcHandlers() {
 
   ipcMain.handle("crm:getAvailableVehicles", async () => {
     return prisma.vehicleChassis.findMany({
-      where: { saleStatus: "AVAILABLE" },
+      where: { saleStatus: "AVAILABLE", deletedAt: null },
       include: {
         model: true
       }
@@ -325,6 +336,7 @@ function registerIpcHandlers() {
     // Sum today's expenses
     const expenses = await prisma.dailyExpense.findMany({
       where: {
+        deletedAt: null,
         expenseDate: {
           gte: todayStart,
           lte: todayEnd
@@ -345,7 +357,7 @@ function registerIpcHandlers() {
 
   ipcMain.handle("agreements:get-options", async () => {
     return prisma.vehicleChassis.findMany({
-      where: { saleStatus: { in: ["SOLD", "RESERVED"] } },
+      where: { saleStatus: { in: ["SOLD", "RESERVED"] }, deletedAt: null },
       include: {
         model: true,
         salesRecord: { include: { customer: true } },
@@ -364,6 +376,10 @@ function registerIpcHandlers() {
   registerAuthIpcHandlers(prisma);
   registerPdfIpcHandlers(prisma);
   registerCrmPipelineIpcHandlers(prisma);
+  registerReportsIpcHandlers(prisma);
+  registerProfileIpcHandlers(prisma);
+  registerTaskIpcHandlers(prisma);
+  registerRecycleBinIpcHandlers(prisma);
 }
 
 function createWindow(): void {
@@ -406,6 +422,7 @@ app.whenReady().then(async () => {
   });
 
   // Initialize DB, seed, and register IPC handlers
+  await seedApplicationSettings(prisma);
   await seedDatabaseIfEmpty();
   registerIpcHandlers();
 

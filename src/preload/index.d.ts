@@ -1,4 +1,5 @@
 import type { ElectronAPI } from "@electron-toolkit/preload";
+import type { AuthUser, CreateTaskPayload, DealershipProfileData, DealershipProfileInput, RecycleBinItem, RecycleEntityType, ReportExportResult, ReportFilterPayload, ReportRow, TaskFilters, UnifiedTask } from "../shared/ipc";
 
 export type Task = {
     id: string;
@@ -170,14 +171,41 @@ declare global {
             };
             financials: {
                 getTodaySummary: () => Promise<TodayFinancialSummary>;
+                getDailyExpenses: () => Promise<Array<{ id: string; category: string; description: string; amount: number; expenseDate: string; loggedBy: string }>>;
                 logExpense: (data: { category: string; description: string; amount: number; loggedBy?: string }) => Promise<unknown>;
                 recordSale: (data: { customerId: string; chassisNumber: string; finalSalePrice: number; paymentMethod: string; notes?: string }) => Promise<unknown>;
             };
-            auth: { verifyPin: (pin: string) => Promise<boolean> };
+            auth: {
+                login: (data: { username: string; password: string }) => Promise<AuthUser>;
+                changePassword: (data: { userId: string; currentPassword: string; newPassword: string }) => Promise<boolean>;
+            };
+            profile: {
+                get: () => Promise<DealershipProfileData>;
+                update: (data: DealershipProfileInput) => Promise<DealershipProfileData>;
+            };
+            reports: {
+                preview: (filters: ReportFilterPayload) => Promise<ReportRow[]>;
+                exportFile: (filters: ReportFilterPayload) => Promise<ReportExportResult>;
+            };
+            tasks: {
+                getAll: (filters?: TaskFilters) => Promise<UnifiedTask[]>;
+                create: (data: CreateTaskPayload) => Promise<UnifiedTask>;
+                updateStatus: (data: { taskId: string; status: "PENDING" | "IN_PROGRESS" | "COMPLETED" }) => Promise<UnifiedTask>;
+            };
+            recyclebin: {
+                getDeleted: (entityType?: RecycleEntityType) => Promise<RecycleBinItem[]>;
+                softDelete: (data: { entityType: RecycleEntityType; id: string }) => Promise<unknown>;
+                restore: (data: { entityType: RecycleEntityType; id: string }) => Promise<unknown>;
+                permanentDelete: (data: { entityType: RecycleEntityType; id: string }) => Promise<unknown>;
+                emptyBin: () => Promise<{ deletedCount: number }>;
+            };
             agreements: {
                 getOptions: () => Promise<AgreementOption[]>;
                 generatePdf: (data: { agreementId: string; chassisNumber: string; customerId: string; salePrice: number; paymentMethod: string; notes?: string }) => Promise<{ filePath: string }>;
                 openPdf: (filePath: string) => Promise<void>;
+            };
+            quotes: {
+                generatePdf: (quoteId: string) => Promise<{ filePath: string }>;
             };
         };
     }

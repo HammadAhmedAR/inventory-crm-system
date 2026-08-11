@@ -1,4 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react";
+import { useAppStore } from "../../store/useAppStore";
+import { useSoftDelete } from "../../hooks/useRecycleBin";
 import {
   useInventoryList,
   useLogRepairIssue,
@@ -12,6 +14,9 @@ import RepairLogModal from "./components/RepairLogModal";
 import AddUnitModal from "./components/AddUnitModal";
 
 const InventoryPage: React.FC = () => {
+  const selectedFromTasks = useAppStore((state) => state.selectedChassisNumber);
+  const setSelectedFromTasks = useAppStore((state) => state.setSelectedChassisNumber);
+  const softDelete = useSoftDelete();
   const [statusFilter, setStatusFilter] = useState("ALL");
   const [searchText, setSearchText] = useState("");
   const [makeFilter, setMakeFilter] = useState("");
@@ -32,6 +37,7 @@ const InventoryPage: React.FC = () => {
     saleStatus: saleStatusFilter === "ALL" ? undefined : saleStatusFilter,
   });
   const { data: allUnits = [] } = useInventoryList();
+  useEffect(() => { if (!selectedFromTasks || !allUnits.length) return; const unit = allUnits.find((item) => item.chassisNumber === selectedFromTasks); if (unit) { setSelectedUnit(unit); setRepairOpen(true); } setSelectedFromTasks(null); }, [selectedFromTasks, allUnits, setSelectedFromTasks]);
 
   const updateStatusMutation = useUpdateChassisStatus();
   const logRepairMutation = useLogRepairIssue();
@@ -87,6 +93,10 @@ const InventoryPage: React.FC = () => {
       ...payload,
       repairStatus: "PENDING",
     });
+    if (window.confirm("This unit now needs repair. Create a repair dispatch task?")) {
+      const due = new Date(); due.setDate(due.getDate() + 1);
+      await window.api.tasks.create({ chassisNumber: payload.chassisNumber, title: `Dispatch ${payload.chassisNumber} for repair`, actionType: "REPAIR_DISPATCH", taskType: "INVENTORY_REPAIR", priority: "HIGH", dueDate: due.toISOString().slice(0, 10), notes: payload.description });
+    }
     setRepairOpen(false);
     setSelectedUnit(null);
   };
@@ -175,6 +185,7 @@ const InventoryPage: React.FC = () => {
           onRepair={handleOpenRepair}
           onCustody={handleOpenChecklist}
           onChangeSaleStatus={handleChangeSaleStatus}
+          onDelete={(unit) => softDelete.mutate({ entityType: "VEHICLE", id: unit.chassisNumber })}
         />
       )}
 
@@ -187,6 +198,7 @@ const InventoryPage: React.FC = () => {
         }}
         onSave={handleSaveRepair}
         onResolveAll={handleResolveAll}
+        onDelete={(chassisNumber) => { softDelete.mutate({ entityType: "VEHICLE", id: chassisNumber }); setRepairOpen(false); setSelectedUnit(null); }}
       />
 
       <DocumentChecklist

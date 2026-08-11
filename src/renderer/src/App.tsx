@@ -3,16 +3,22 @@ import Sidebar, { Route } from "./components/Sidebar";
 import Header from "./components/Header";
 import WalkInLoggerModal from "./features/workbench/components/WalkInLoggerModal";
 import ExpenseAndSaleModal from "./features/financials/components/ExpenseAndSaleModal";
-import AuthModal from "./components/shared/AuthModal";
+import LoginView from "./features/auth/LoginView";
+import { useAuthStore } from "./store/useAuthStore";
+import ToastHost from "./components/shared/ToastHost";
 
 // Lazy-load feature pages for performance
 const WorkbenchPage = lazy(() => import("./features/workbench/WorkbenchPage"));
 const InventoryPage = lazy(() => import("./features/inventory/InventoryPage"));
 const ProspectsPage = lazy(() => import("./features/prospects/ProspectsPage"));
 const AgreementPage = lazy(() => import("./features/agreements/AgreementPage"));
+const ReportsPage = lazy(() => import("./features/reports/ReportsPage"));
+const ProfileSettingsPage = lazy(() => import("./features/settings/ProfileSettingsPage"));
+const TasksPage = lazy(() => import("./features/todos/TasksPage"));
+const RecycleBinPage = lazy(() => import("./features/recyclebin/RecycleBinPage"));
 
 /** Renders the active route's page component */
-const RouteView: React.FC<{ route: Route }> = ({ route }) => {
+const RouteView: React.FC<{ route: Route; onNavigate: (route: Route) => void }> = ({ route, onNavigate }) => {
   switch (route) {
     case "/workbench":
       return <WorkbenchPage />;
@@ -22,6 +28,14 @@ const RouteView: React.FC<{ route: Route }> = ({ route }) => {
       return <ProspectsPage />;
     case "/agreements":
       return <AgreementPage />;
+    case "/reports":
+      return <ReportsPage />;
+    case "/settings":
+      return <ProfileSettingsPage />;
+    case "/todos":
+      return <TasksPage onNavigate={onNavigate} />;
+    case "/recycle-bin":
+      return <RecycleBinPage />;
     default:
       return <WorkbenchPage />;
   }
@@ -42,7 +56,9 @@ const App: React.FC = () => {
   const [sidebarCollapsed, setSidebarCollapsed] = useState<boolean>(false);
   const [walkInOpen, setWalkInOpen] = useState<boolean>(false);
   const [financialsOpen, setFinancialsOpen] = useState(false);
-  const [locked, setLocked] = useState(true);
+  const isLoggedIn = useAuthStore((state) => state.isLoggedIn);
+  const user = useAuthStore((state) => state.user);
+  const logout = useAuthStore((state) => state.logout);
 
   /** Open Walk-In Logger */
   const openWalkIn = useCallback(() => setWalkInOpen(true), []);
@@ -65,6 +81,8 @@ const App: React.FC = () => {
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, []);
 
+  if (!isLoggedIn || !user) return <LoginView />;
+
   return (
     <div
       className="flex h-screen w-screen overflow-hidden bg-background text-white"
@@ -81,7 +99,7 @@ const App: React.FC = () => {
       {/* ─── Right Panel ──────────────────────────────────── */}
       <div className="flex flex-col flex-1 min-w-0 overflow-hidden">
         {/* Top Header */}
-        <Header activeRoute={activeRoute} onWalkInLogger={openWalkIn} onFinancials={() => setFinancialsOpen(true)} onLock={() => setLocked(true)} />
+        <Header activeRoute={activeRoute} onWalkInLogger={openWalkIn} onFinancials={() => setFinancialsOpen(true)} userName={user.fullName} onLogout={() => { logout(); setActiveRoute("/workbench"); }} />
 
         {/* Main Content */}
         <main
@@ -91,7 +109,7 @@ const App: React.FC = () => {
           aria-label={`${activeRoute.replace("/", "")} screen`}
         >
           <Suspense fallback={<ScreenLoader />}>
-            <RouteView route={activeRoute} />
+            <RouteView route={activeRoute} onNavigate={setActiveRoute} />
           </Suspense>
         </main>
       </div>
@@ -99,7 +117,7 @@ const App: React.FC = () => {
       {/* ─── Walk-In Logger Modal ─────────────────────────── */}
       <WalkInLoggerModal open={walkInOpen} onClose={closeWalkIn} />
       <ExpenseAndSaleModal open={financialsOpen} onClose={() => setFinancialsOpen(false)} />
-      <AuthModal locked={locked} onUnlock={() => setLocked(false)} />
+      <ToastHost />
     </div>
   );
 };
