@@ -1,0 +1,108 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ─── Base Reset ────────────────────────────────────────────────── */
+@layer base {
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+
+  html,
+  body,
+  #root {
+    height: 100%;
+    width: 100%;
+    overflow: hidden;
+  }
+
+  body {
+    font-family: 'Inter', system-ui, sans-serif;
+    background-color: #0f172a;
+    color: #e2e8f0;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    user-select: none;
+  }
+
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: #1e293b;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: #475569;
+    border-radius: 3px;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: #64748b;
+  }
+}
+
+/* ─── Component Utilities ────────────────────────────────────────── */
+@layer components {
+  /* Glass card */
+  .card {
+    @apply bg-surface rounded-xl border border-border shadow-card;
+  }
+
+  /* Gold accent button */
+  .btn-accent {
+    @apply bg-accent hover:bg-accent-hover text-slate-900 font-semibold text-sm
+           px-4 py-2 rounded-lg transition-all duration-150
+           active:scale-95 focus:outline-none focus:ring-2 focus:ring-accent/50;
+  }
+
+  /* Ghost button */
+  .btn-ghost {
+    @apply text-muted hover:text-white hover:bg-surface-elevated
+           text-sm font-medium px-3 py-2 rounded-lg transition-all duration-150
+           focus:outline-none focus:ring-2 focus:ring-border;
+  }
+
+  /* Pill badge — success */
+  .badge-success {
+    @apply bg-success-muted text-success text-xs font-semibold
+           px-2.5 py-0.5 rounded-full;
+  }
+
+  /* Pill badge — warning / accent */
+  .badge-accent {
+    @apply bg-accent-muted text-accent text-xs font-semibold
+           px-2.5 py-0.5 rounded-full;
+  }
+
+  /* Pill badge — neutral */
+  .badge-muted {
+    @apply bg-surface-elevated text-muted text-xs font-semibold
+           px-2.5 py-0.5 rounded-full;
+  }
+
+  /* Nav item */
+  .nav-item {
+    @apply flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium
+           text-muted transition-all duration-150 cursor-pointer
+           hover:bg-surface-elevated hover:text-white;
+  }
+
+  .nav-item.active {
+    @apply bg-surface-elevated text-white border-l-2 border-accent;
+  }
+
+  /* Input */
+  .input-dark {
+    @apply bg-surface border border-border rounded-lg px-3 py-2 text-sm text-white
+           placeholder-subtle outline-none
+           focus:border-accent/60 focus:ring-1 focus:ring-accent/30
+           transition-all duration-150;
+  }
+}

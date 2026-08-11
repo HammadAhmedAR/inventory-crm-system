@@ -1,0 +1,15 @@
+{
+  "extends": "@electron-toolkit/tsconfig/tsconfig.web.json",
+  "include": ["src/renderer/src/**/*", "src/preload/index.d.ts"],
+  "exclude": ["src/preload/index.ts"],
+  "compilerOptions": {
+    "composite": true,
+    "noEmit": true,
+    "jsx": "react-jsx",
+    "moduleResolution": "Bundler",
+    "paths": {
+      "@renderer/*": ["./src/renderer/src/*"],
+      "@preload/*": ["./src/preload/*"]
+    }
+  }
+}

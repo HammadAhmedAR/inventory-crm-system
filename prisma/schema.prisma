@@ -1,0 +1,135 @@
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model UserAccount {
+  id           String   @id @default(uuid())
+  username     String   @unique
+  fullName     String
+  pinHash      String   
+  role         String   @default("OWNER")
+  isActive     Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model VehicleModel {
+  id           String           @id @default(uuid())
+  make         String           
+  modelName    String           
+  year         Int              
+  bodyType     String           @default("BIKE")
+  chassisUnits VehicleChassis[]
+  createdAt    DateTime         @default(now())
+}
+
+model VehicleChassis {
+  chassisNumber    String               @id
+  modelId          String
+  model            VehicleModel         @relation(fields: [modelId], references: [id])
+  engineNumber     String?
+  color            String
+  baseQuotingPrice Float                
+  minSellingPrice  Float?               
+  costPrice        Float?               
+  
+  saleStatus       String               @default("AVAILABLE") 
+  healthStatus     String               @default("READY_FOR_SALE") 
+  
+  keysCount        Int                  @default(2)
+  documentsPresent Boolean              @default(false)
+  
+  repairs          VehicleRepairLog[]
+  quotes           ProspectQuote[]
+  salesRecord      VehicleSale?
+  createdAt        DateTime             @default(now())
+  updatedAt        DateTime             @updatedAt
+}
+
+model VehicleRepairLog {
+  id            String         @id @default(uuid())
+  chassisNumber String
+  chassis       VehicleChassis @relation(fields: [chassisNumber], references: [chassisNumber])
+  issueCategory String         
+  description   String         
+  repairStatus  String         @default("PENDING") 
+  costIncurred  Float          @default(0.0)
+  loggedAt      DateTime       @default(now())
+  resolvedAt    DateTime?
+}
+
+model Customer {
+  id           String                @id @default(uuid())
+  fullName     String
+  phone        String                @unique
+  email        String?
+  leadSource   String                @default("WALK_IN") 
+  
+  interactions CustomerInteraction[]
+  quotes       ProspectQuote[]
+  tasks        FollowUpTask[]
+  sales        VehicleSale[]
+  createdAt    DateTime              @default(now())
+}
+
+model CustomerInteraction {
+  id             String   @id @default(uuid())
+  customerId     String
+  customer       Customer @relation(fields: [customerId], references: [id])
+  customerRemark String   
+  salesNote      String?  
+  actionTag      String   
+  createdAt      DateTime @default(now())
+}
+
+model ProspectQuote {
+  id            String         @id @default(uuid())
+  customerId    String
+  customer      Customer       @relation(fields: [customerId], references: [id])
+  chassisNumber String
+  chassis       VehicleChassis @relation(fields: [chassisNumber], references: [chassisNumber])
+  quotedPrice   Float          
+  status        String         @default("ACTIVE") 
+  createdAt     DateTime       @default(now())
+}
+
+model FollowUpTask {
+  id         String   @id @default(uuid())
+  customerId String
+  customer   Customer @relation(fields: [customerId], references: [id])
+  title      String   
+  actionType String   
+  dueDate    DateTime 
+  dueTime    String?  
+  status     String   @default("PENDING") 
+  notes      String?
+  createdAt  DateTime @default(now())
+}
+
+model DailyExpense {
+  id          String   @id @default(uuid())
+  category    String   
+  description String   
+  amount      Float    
+  expenseDate DateTime @default(now())
+  loggedBy    String   
+  createdAt   DateTime @default(now())
+}
+
+model VehicleSale {
+  id             String         @id @default(uuid())
+  chassisNumber  String         @unique
+  chassis        VehicleChassis @relation(fields: [chassisNumber], references: [chassisNumber])
+  customerId     String
+  customer       Customer       @relation(fields: [customerId], references: [id])
+  finalSalePrice Float          
+  paymentMethod  String         @default("CASH") 
+  saleDate       DateTime       @default(now())
+  notes          String?
+  createdAt      DateTime       @default(now())
+}

@@ -1,0 +1,32 @@
+import { jsx as _jsx, jsxs as _jsxs } from "react/jsx-runtime";
+const SALE_STATUS_CLASSES = {
+    AVAILABLE: "bg-yellow-500/15 text-yellow-300 border border-yellow-400/30",
+    RESERVED: "bg-violet-500/15 text-violet-300 border border-violet-400/30",
+    SOLD: "bg-slate-700 text-slate-200 border border-slate-600",
+};
+const HEALTH_STATUS_CLASSES = {
+    READY_FOR_SALE: "bg-emerald-500/15 text-emerald-300 border border-emerald-400/30",
+    UNDER_REPAIR: "bg-red-500/15 text-red-300 border border-red-400/30",
+    NEEDS_REPAIR: "bg-red-500/15 text-red-300 border border-red-400/30",
+    PENDING_CHECK: "bg-amber-500/15 text-amber-300 border border-amber-400/30",
+};
+function formatLkr(value) {
+    const safe = Number(value ?? 0);
+    return new Intl.NumberFormat("en-LK", {
+        style: "currency",
+        currency: "LKR",
+        maximumFractionDigits: 0,
+    }).format(safe);
+}
+const ChassisDataTable = ({ units, selectedStatus, onStatusFilter, onRepair, onCustody, onChangeSaleStatus, }) => {
+    const filterButtons = [
+        { label: "All Units", value: "ALL" },
+        { label: "Ready for Sale", value: "READY_FOR_SALE" },
+        { label: "Needs/In Repair", value: "REPAIR" },
+        { label: "Sold", value: "SOLD" },
+    ];
+    return (_jsxs("div", { className: "card overflow-hidden", children: [_jsxs("div", { className: "flex items-center justify-between border-b border-border bg-background/40 px-5 py-3", children: [_jsxs("div", { className: "flex items-center gap-2", children: [_jsx("h3", { className: "text-white font-semibold text-sm", children: "Vehicle Inventory" }), _jsxs("span", { className: "badge-muted", children: [units.length, " units"] })] }), _jsx("div", { className: "flex flex-wrap items-center gap-2", children: filterButtons.map((filter) => (_jsx("button", { type: "button", onClick: () => onStatusFilter(filter.value), className: `rounded-full border px-2.5 py-1 text-[11px] font-medium transition ${selectedStatus === filter.value
+                                ? "border-accent bg-accent/10 text-accent"
+                                : "border-border bg-surface-elevated text-muted hover:text-white"}`, children: filter.label }, filter.value))) })] }), _jsx("div", { className: "overflow-x-auto", children: _jsxs("table", { className: "min-w-full border-separate border-spacing-0 text-sm", children: [_jsx("thead", { children: _jsxs("tr", { className: "bg-background/30 text-left text-subtle", children: [_jsx("th", { className: "px-4 py-3 font-semibold uppercase tracking-wider text-[10px]", children: "Chassis #" }), _jsx("th", { className: "px-4 py-3 font-semibold uppercase tracking-wider text-[10px]", children: "Model & Year" }), _jsx("th", { className: "px-4 py-3 font-semibold uppercase tracking-wider text-[10px]", children: "Color" }), _jsx("th", { className: "px-4 py-3 font-semibold uppercase tracking-wider text-[10px]", children: "Sale Status" }), _jsx("th", { className: "px-4 py-3 font-semibold uppercase tracking-wider text-[10px]", children: "Health" }), _jsx("th", { className: "px-4 py-3 font-semibold uppercase tracking-wider text-[10px]", children: "Base / Floor" }), _jsx("th", { className: "px-4 py-3 font-semibold uppercase tracking-wider text-[10px]", children: "Custody" }), _jsx("th", { className: "px-4 py-3 font-semibold uppercase tracking-wider text-[10px]", children: "Actions" })] }) }), _jsxs("tbody", { children: [units.length === 0 && (_jsx("tr", { children: _jsx("td", { colSpan: 8, className: "px-6 py-16 text-center text-sm text-subtle", children: "No chassis units match this search or filter." }) })), units.map((unit, index) => (_jsxs("tr", { className: `${index % 2 === 0 ? "bg-background/10" : "bg-surface/40"} border-t border-border/60`, children: [_jsx("td", { className: "px-4 py-3 align-top", children: _jsx("div", { className: "font-mono text-xs font-bold text-accent", children: unit.chassisNumber }) }), _jsxs("td", { className: "px-4 py-3 align-top", children: [_jsxs("div", { className: "font-medium text-white", children: [unit.model.make, " ", unit.model.modelName] }), _jsx("div", { className: "text-[11px] text-subtle", children: unit.model.year })] }), _jsx("td", { className: "px-4 py-3 align-top text-muted", children: unit.color }), _jsx("td", { className: "px-4 py-3 align-top", children: _jsx("span", { className: `inline-flex rounded-full px-2 py-1 text-[10px] font-semibold ${SALE_STATUS_CLASSES[unit.saleStatus] ?? "bg-slate-700 text-slate-200"}`, children: unit.saleStatus }) }), _jsx("td", { className: "px-4 py-3 align-top", children: _jsx("span", { className: `inline-flex rounded-full px-2 py-1 text-[10px] font-semibold ${HEALTH_STATUS_CLASSES[unit.healthStatus] ?? "bg-slate-700 text-slate-200"}`, children: unit.healthStatus.replace(/_/g, " ") }) }), _jsxs("td", { className: "px-4 py-3 align-top", children: [_jsx("div", { className: "text-white font-medium text-[12px]", children: formatLkr(unit.baseQuotingPrice) }), _jsx("div", { className: "text-[11px] text-subtle", children: formatLkr(unit.minSellingPrice ?? unit.baseQuotingPrice) })] }), _jsx("td", { className: "px-4 py-3 align-top", children: _jsxs("div", { className: "flex items-center gap-2 text-[11px] text-muted", children: [_jsxs("span", { className: "rounded-full bg-background px-2 py-1", children: ["Keys: ", unit.keysCount] }), _jsxs("span", { className: `rounded-full px-2 py-1 ${unit.documentsPresent ? "bg-emerald-500/15 text-emerald-300" : "bg-slate-700 text-slate-300"}`, children: ["Docs ", unit.documentsPresent ? "OK" : "Missing"] })] }) }), _jsx("td", { className: "px-4 py-3 align-top", children: _jsxs("div", { className: "flex flex-col gap-2", children: [_jsx("button", { type: "button", onClick: () => onRepair(unit), className: "rounded-md border border-border bg-surface-elevated px-2 py-1 text-[10px] font-medium text-muted hover:text-white", children: "Manage Health & Repairs" }), _jsx("button", { type: "button", onClick: () => onCustody(unit), className: "rounded-md border border-border bg-surface-elevated px-2 py-1 text-[10px] font-medium text-muted hover:text-white", children: "Custody Checklist" }), _jsx("button", { type: "button", onClick: () => onChangeSaleStatus(unit), className: "rounded-md border border-accent/40 bg-accent/10 px-2 py-1 text-[10px] font-medium text-accent hover:bg-accent/20", children: "Change Sale Status" })] }) })] }, unit.chassisNumber)))] })] }) })] }));
+};
+export default ChassisDataTable;

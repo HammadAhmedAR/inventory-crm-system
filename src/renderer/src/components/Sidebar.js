@@ -1,0 +1,44 @@
+import { jsx as _jsx, jsxs as _jsxs } from "react/jsx-runtime";
+const NAV_ITEMS = [
+    {
+        route: "/workbench",
+        icon: "📊",
+        label: "Workbench",
+        sublabel: "Overview & KPIs",
+    },
+    {
+        route: "/inventory",
+        icon: "🚗",
+        label: "Inventory & Repairs",
+        sublabel: "Stock & Workshop",
+    },
+    {
+        route: "/prospects",
+        icon: "👥",
+        label: "Prospects & Quotes",
+        sublabel: "Sales Pipeline",
+    },
+    {
+        route: "/agreements",
+        icon: "📄",
+        label: "Handover Agreement",
+        sublabel: "Docs & Contracts",
+    },
+];
+const Sidebar = ({ activeRoute, onNavigate, collapsed, onToggleCollapse, }) => {
+    return (_jsxs("aside", { className: `
+        flex flex-col h-full bg-surface border-r border-border
+        transition-all duration-300 ease-in-out flex-shrink-0
+        ${collapsed ? "w-16" : "w-60"}
+      `, "aria-label": "Main navigation sidebar", children: [_jsxs("div", { className: "flex items-center gap-3 px-3 py-4 border-b border-border min-h-[60px]", children: [_jsx("div", { className: "flex-shrink-0 w-9 h-9 rounded-lg bg-accent flex items-center justify-center text-slate-900 font-black text-sm shadow-glow", "aria-label": "OmniDrive logo", children: "OD" }), !collapsed && (_jsxs("div", { className: "animate-fade-in overflow-hidden", children: [_jsx("p", { className: "text-white font-bold text-sm leading-tight tracking-tight", children: "OmniDrive" }), _jsx("p", { className: "text-subtle text-xs", children: "Dealership OS" })] }))] }), _jsxs("nav", { className: "flex-1 overflow-y-auto px-2 py-3 space-y-1", role: "navigation", children: [!collapsed && (_jsx("p", { className: "text-subtle text-[10px] uppercase tracking-widest font-semibold px-2 pb-1.5 animate-fade-in", children: "Navigation" })), NAV_ITEMS.map((item) => {
+                        const isActive = activeRoute === item.route;
+                        return (_jsxs("button", { id: `nav-${item.route.replace("/", "")}`, onClick: () => onNavigate(item.route), className: `
+                w-full flex items-center gap-3 px-2.5 py-2.5 rounded-lg text-sm font-medium
+                transition-all duration-150 cursor-pointer text-left
+                ${isActive
+                                ? "bg-surface-elevated text-white border-l-2 border-accent pl-[9px]"
+                                : "text-muted hover:bg-surface-elevated hover:text-white border-l-2 border-transparent"}
+              `, "aria-current": isActive ? "page" : undefined, title: collapsed ? item.label : undefined, children: [_jsx("span", { className: "flex-shrink-0 text-base leading-none", role: "img", "aria-hidden": true, children: item.icon }), !collapsed && (_jsxs("div", { className: "animate-fade-in overflow-hidden", children: [_jsx("p", { className: "leading-tight", children: item.label }), _jsx("p", { className: "text-[10px] text-subtle leading-tight", children: item.sublabel })] }))] }, item.route));
+                    })] }), _jsx("div", { className: "px-2 py-3 border-t border-border", children: _jsxs("button", { id: "sidebar-collapse-toggle", onClick: onToggleCollapse, className: "w-full flex items-center justify-center gap-2 px-2.5 py-2 rounded-lg text-subtle hover:text-white hover:bg-surface-elevated transition-all duration-150 text-xs font-medium", "aria-label": collapsed ? "Expand sidebar" : "Collapse sidebar", children: [_jsx("span", { className: `transition-transform duration-300 text-base ${collapsed ? "rotate-180" : ""}`, "aria-hidden": true, children: "\u25C0" }), !collapsed && _jsx("span", { className: "animate-fade-in", children: "Collapse" })] }) })] }));
+};
+export default Sidebar;
