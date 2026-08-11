@@ -134,10 +134,10 @@ const InventoryPage: React.FC = () => {
         ))}
       </div>
 
-      <div className="mb-4 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+      <div className="hidden">
         <div className="relative flex-1">
           <input
-            id="inventory-search"
+            id="inventory-search-legacy"
             type="search"
             placeholder="Search chassis, color, model, or make…"
             value={searchText}

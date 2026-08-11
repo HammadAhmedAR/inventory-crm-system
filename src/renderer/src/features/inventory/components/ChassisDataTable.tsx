@@ -69,7 +69,6 @@ const ChassisDataTable: React.FC<ChassisDataTableProps> = ({
     { label: "All Units", value: "ALL" },
     { label: "Ready for Sale", value: "READY_FOR_SALE" },
     { label: "Needs/In Repair", value: "REPAIR" },
-    { label: "Sold", value: "SOLD" },
   ];
 
   return (
