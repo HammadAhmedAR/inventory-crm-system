@@ -14,14 +14,22 @@ import AddUnitModal from "./components/AddUnitModal";
 const InventoryPage: React.FC = () => {
   const [statusFilter, setStatusFilter] = useState("ALL");
   const [searchText, setSearchText] = useState("");
+  const [makeFilter, setMakeFilter] = useState("");
+  const [modelFilter, setModelFilter] = useState("");
+  const [bodyTypeFilter, setBodyTypeFilter] = useState("");
+  const [saleStatusFilter, setSaleStatusFilter] = useState("ALL");
   const [selectedUnit, setSelectedUnit] = useState<InventoryUnit | null>(null);
   const [repairOpen, setRepairOpen] = useState(false);
   const [checklistOpen, setChecklistOpen] = useState(false);
   const [addUnitOpen, setAddUnitOpen] = useState(false);
 
   const { data: units = [], isLoading, error } = useInventoryList({
-    status: statusFilter === "ALL" ? undefined : statusFilter,
+    healthStatus: statusFilter === "ALL" ? undefined : statusFilter,
     search: searchText,
+    make: makeFilter || undefined,
+    modelId: modelFilter || undefined,
+    bodyType: bodyTypeFilter || undefined,
+    saleStatus: saleStatusFilter === "ALL" ? undefined : saleStatusFilter,
   });
   const { data: allUnits = [] } = useInventoryList();
 
@@ -151,6 +159,17 @@ const InventoryPage: React.FC = () => {
       ) : (
         <ChassisDataTable
           units={units}
+          allUnits={allUnits}
+          search={searchText}
+          makeFilter={makeFilter}
+          modelFilter={modelFilter}
+          bodyTypeFilter={bodyTypeFilter}
+          saleStatusFilter={saleStatusFilter}
+          onSearch={setSearchText}
+          onMakeFilter={(value) => { setMakeFilter(value); setModelFilter(""); }}
+          onModelFilter={setModelFilter}
+          onBodyTypeFilter={setBodyTypeFilter}
+          onSaleStatusFilter={setSaleStatusFilter}
           selectedStatus={statusFilter}
           onStatusFilter={setStatusFilter}
           onRepair={handleOpenRepair}
