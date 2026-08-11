@@ -69,6 +69,10 @@ model Customer {
   phone        String                @unique
   email        String?
   leadSource   String                @default("WALK_IN") 
+  pipelineStage String               @default("NEW_LEAD")
+  estimatedCloseDate DateTime?
+  lostReason   String?
+  lostReasonNotes String?
   
   interactions CustomerInteraction[]
   quotes       ProspectQuote[]

@@ -7,6 +7,7 @@ import { registerInventoryIpcHandlers } from "./modules/inventory/inventory.ipc"
 import { registerFinancialsIpcHandlers } from "./modules/financials/financials.ipc";
 import { registerAuthIpcHandlers } from "./modules/auth/auth.ipc";
 import { registerPdfIpcHandlers } from "./modules/pdf/pdf.ipc";
+import { registerCrmPipelineIpcHandlers } from "./modules/crm/crm.ipc";
 
 // Set database URL dynamically based on environment
 const dbPath = is.dev
@@ -26,16 +27,16 @@ async function seedDatabaseIfEmpty() {
 
   // 1. Create Vehicle Models
   const camry = await prisma.vehicleModel.create({
-    data: { make: "Toyota", modelName: "Camry", year: 2023 }
+    data: { make: "Toyota", modelName: "Camry", year: 2023, bodyType: "SEDAN" }
   });
   const crv = await prisma.vehicleModel.create({
-    data: { make: "Honda", modelName: "CR-V", year: 2022 }
+    data: { make: "Honda", modelName: "CR-V", year: 2022, bodyType: "SUV" }
   });
   const ranger = await prisma.vehicleModel.create({
-    data: { make: "Ford", modelName: "Ranger", year: 2024 }
+    data: { make: "Ford", modelName: "Ranger", year: 2024, bodyType: "SUV" }
   });
   const cx5 = await prisma.vehicleModel.create({
-    data: { make: "Mazda", modelName: "CX-5", year: 2023 }
+    data: { make: "Mazda", modelName: "CX-5", year: 2023, bodyType: "SUV" }
   });
 
   // 2. Create Vehicle Chassis
@@ -276,7 +277,10 @@ function registerIpcHandlers() {
     const query = String(search).trim();
     return prisma.customer.findMany({
       where: query ? { OR: [{ fullName: { contains: query } }, { phone: { contains: query } }, { email: { contains: query } }] } : undefined,
-      include: { _count: { select: { interactions: true, quotes: true } } },
+      include: {
+        _count: { select: { interactions: true, quotes: true } },
+        quotes: { take: 1, orderBy: { createdAt: "desc" }, include: { chassis: { include: { model: true } } } },
+      },
       orderBy: { createdAt: "desc" },
     });
   });
@@ -359,6 +363,7 @@ function registerIpcHandlers() {
   registerFinancialsIpcHandlers(prisma);
   registerAuthIpcHandlers(prisma);
   registerPdfIpcHandlers(prisma);
+  registerCrmPipelineIpcHandlers(prisma);
 }
 
 function createWindow(): void {

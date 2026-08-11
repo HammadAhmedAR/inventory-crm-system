@@ -117,7 +117,7 @@ const InventoryPage: React.FC = () => {
           <p className="text-[10px] uppercase tracking-[0.22em] text-subtle">Operations</p>
           <h2 className="text-2xl font-bold text-white tracking-tight">Inventory & Vehicle Health</h2>
         </div>
-        <button type="button" className="btn-accent" onClick={() => setAddUnitOpen(true)}>+ Add Unit</button>
+        <button type="button" className="btn-accent" onClick={() => setAddUnitOpen(true)}>+ Add New Unit</button>
       </div>
 
       <div className="mb-6 grid grid-cols-1 gap-3 md:grid-cols-4">

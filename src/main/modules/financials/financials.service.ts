@@ -38,6 +38,7 @@ export async function recordSale(prisma: PrismaClient, input: {
       include: { customer: true, chassis: { include: { model: true } } },
     });
     await tx.vehicleChassis.update({ where: { chassisNumber: input.chassisNumber }, data: { saleStatus: "SOLD" } });
+    await tx.customer.update({ where: { id: input.customerId }, data: { pipelineStage: "CLOSED_WON", lostReason: null, lostReasonNotes: null } });
     await tx.prospectQuote.updateMany({ where: { customerId: input.customerId, chassisNumber: input.chassisNumber, status: "ACTIVE" }, data: { status: "ACCEPTED" } });
     return sale;
   });

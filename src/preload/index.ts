@@ -21,6 +21,7 @@ export type Task = {
 
 export type CustomerTimeline = {
   id: string;
+  createdAt: string;
   fullName: string;
   phone: string;
   email: string | null;
@@ -73,7 +74,9 @@ export type TodayFinancialSummary = {
 
 export type CustomerSummary = {
   id: string; fullName: string; phone: string; email: string | null; leadSource: string;
+  pipelineStage: string; estimatedCloseDate: string | null; lostReason: string | null; lostReasonNotes: string | null; createdAt: string;
   _count: { interactions: number; quotes: number };
+  quotes: Array<{ id: string; quotedPrice: number; createdAt: string; chassis: { chassisNumber: string; model: { make: string; modelName: string; year: number } } }>;
 };
 
 export type AgreementOption = {
@@ -128,6 +131,8 @@ const api = {
   },
   crm: {
     getCustomers: (search?: string) => ipcRenderer.invoke("crm:getCustomers", search ?? ""),
+    addProspect: (data: { fullName: string; phone: string; email?: string; leadSource: string; pipelineStage: string; chassisNumber?: string; quotedPrice?: number; remarks?: string; estimatedCloseDate?: string; createdAt?: string }) => ipcRenderer.invoke("crm:add-prospect", data),
+    updatePipelineStage: (data: { customerId: string; pipelineStage: string; lostReason?: string; lostReasonNotes?: string }) => ipcRenderer.invoke("crm:update-pipeline-stage", data),
     getTasks: () => ipcRenderer.invoke("crm:getTasks"),
     quickLog: (data: {
       fullName: string;

@@ -17,6 +17,22 @@ export function useCustomers(search = "") {
   });
 }
 
+export function useAddProspect() {
+  const client = useQueryClient();
+  return useMutation({
+    mutationFn: window.api.crm.addProspect,
+    onSuccess: () => Promise.all([client.invalidateQueries({ queryKey: ["customers"] }), client.invalidateQueries({ queryKey: ["dailyTasks"] })]),
+  });
+}
+
+export function useUpdatePipelineStage() {
+  const client = useQueryClient();
+  return useMutation({
+    mutationFn: window.api.crm.updatePipelineStage,
+    onSuccess: (_, variables) => Promise.all([client.invalidateQueries({ queryKey: ["customers"] }), client.invalidateQueries({ queryKey: ["customerTimeline", variables.customerId] })]),
+  });
+}
+
 /** Log a new walk-in prospect details */
 export function useQuickLogLead() {
   const queryClient = useQueryClient();
